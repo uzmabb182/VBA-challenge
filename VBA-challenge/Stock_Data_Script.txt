@@ -1,0 +1,460 @@
+Sub Stock_Data_Analysis():
+
+'--------------------------------------------------------------------
+'Declaring the variable for worksheet, last row and column count.
+'--------------------------------------------------------------------
+
+Dim ws As Worksheet
+Dim Last_Row As String
+Dim Last_Column As String
+
+'Declaring the variables for holding the cells values
+
+Dim WorkSheetName As String
+Dim Ticker_Symbol
+Dim Ticker
+Dim Opening_Price As Double
+Dim Closing_Price As Double
+Dim Yearly_Change As Double
+Dim Percent_Change As Double
+Dim Greatest_Percent_Increase As Double
+Dim Greatest_Percent_Deccrease As Double
+Dim Greatest_Total_Volume As Double
+Dim Sheet_Value As Double
+Dim Max_Value As Double
+Dim Min_Value As Double
+Dim Max_Volume As Double
+'Dim Start_Year As Double
+'Dim End_Year As Double
+
+
+Dim Start_Year As String
+Dim End_Year As String
+Dim Year1 As String
+Dim Year2 As String
+Dim Total_Stock_Volume As Double
+
+
+'Initializing the variables
+
+Opening_Price = 0
+Closing_Price = 0
+Yearly_Change = 0
+Percent_Change = 0
+Total_Stock_Volume = 0
+
+
+
+
+
+
+
+  
+'------------------------------------------------------------------
+'Applying steps on each worksheet
+'------------------------------------------------------------------
+
+For Each ws In Worksheets
+    ws.Activate
+    
+    Columns("A:Z").EntireColumn.AutoFit
+    
+    'Determining the last row count
+
+    Last_Row = ws.Cells(Rows.Count, 1).End(xlUp).Row
+   ' MsgBox (Last_Row)
+
+    'Determining the last row column
+
+    Last_Column = ws.Cells(1, Columns.Count).End(xlToLeft).Column
+    'MsgBox (Last_Column)
+    
+     'Assigning the new column Headers
+     
+    
+    Cells(1, Last_Column + 2).Value = "Ticker"
+    Cells(1, Last_Column + 3).Value = "Yearly_Change"
+    Cells(1, Last_Column + 4).Value = "Percent_Change"
+    Cells(1, Last_Column + 5).Value = "Total_Stock_Volume"
+    
+ Next ws
+ 
+    
+    '------------------------------------------------------------
+    'Applying  For loop to read cell values for Ticker column
+    '------------------------------------------------------------
+    
+For Each ws In Worksheets
+    ws.Activate
+    
+    
+    i = 2 'row increment counter for ticker column
+    j = 2 'row increment counter for adding value to a new column ' Ticker'
+    
+   
+    Ticker_Symbol = Cells(i, 1).Value
+    Start_Year = (Cells(i, 2).Value)
+    End_Year = (Cells(i + 1, 2).Value)
+    Year1 = Mid(Start_Year, 1, 4)
+    Year2 = Mid(End_Year, 1, 4)
+        
+    
+    For i = 2 To Last_Row
+        
+       
+        'Comparing the Ticker Cell values with each other
+     
+        If (Ticker_Symbol <> Cells(i + 1, 1).Value And Year1 = Year2) Then
+        
+            'Inserting value in a new column 'Ticker'
+            
+            Cells(j, Last_Column + 2).Value = Ticker_Symbol
+                                
+            j = j + 1
+            
+            Opening_Price = CDbl(Cells(i + 1, 3).Value)
+            Ticker_Symbol = Cells(i + 1, 1).Value
+            Start_Year = CDbl(Cells(i + 1, 2).Value)
+            End_Year = CDbl(Cells(i + 2, 2).Value)
+            
+            Year1 = Mid(Start_Year, 1, 4)
+            Year2 = Mid(End_Year, 1, 4)
+                                       
+                                       
+        End If
+        
+    Next i
+        
+Next ws
+
+    '---------------------------------------------------------
+    'Calculating yearly change, and percent change
+    '---------------------------------------------------------
+    
+For Each ws In Worksheets
+    ws.Activate
+    
+    i = 2 'row increment counter
+    j = 2 'row increment counter for adding value to a new column 'Yearly_Change'
+  
+    
+    
+    Opening_Price = CDbl(Cells(i, 3).Value)
+    Ticker_Symbol = Cells(i, 1).Value
+    Start_Year = (Cells(i, 2).Value)
+    End_Year = (Cells(i + 1, 2).Value)
+    Year1 = Mid(Start_Year, 1, 4)
+    Year2 = Mid(End_Year, 1, 4)
+        
+        
+     For i = 2 To Last_Row
+     
+     
+      
+        
+        
+        'Comparing the Ticker Cell values with each other
+        
+        If (Ticker_Symbol <> Cells(i + 1, 1).Value And Year1 = Year2) Then
+                    
+                                              
+            Closing_Price = CDbl(Cells(i, 6).Value)
+                         
+            Yearly_Change = CDbl(Closing_Price) - CDbl(Opening_Price)
+            
+            'Inserting value in a new column 'Yearly_Change'
+            
+            Cells(j, Last_Column + 3).Value = CDbl(Yearly_Change)
+            
+            'Conditional formatting for 'Yearly change' column
+            'highlighting positive change in green and negative change red
+            
+            If Cells(j, Last_Column + 3).Value < 0 Then
+            
+                Cells(j, Last_Column + 3).Interior.ColorIndex = 3
+                
+            Else
+            
+                Cells(j, Last_Column + 3).Interior.ColorIndex = 4
+                
+            End If
+        
+            
+            ' Changing the number format for 'Percent Change'
+            
+            Cells(j, Last_Column + 4).NumberFormat = "0.00\%"
+            
+            
+            'Calculating percent change
+            
+            If (Opening_Price = 0) Then Opening_Price = 1
+           
+         Percent_Change = (CDbl(Yearly_Change) / CDbl(Opening_Price)) * CDbl(100)
+    
+            'Inserting value in a new column 'Percent_Change'
+            
+            Cells(j, Last_Column + 4).Value = Percent_Change
+            
+            
+            
+             j = j + 1
+             
+             Opening_Price = CDbl(Cells(i + 1, 3).Value)
+             Ticker_Symbol = (Cells(i + 1, 1).Value)
+             Start_Year = (Cells(i + 1, 2).Value)
+             End_Year = (Cells(i + 2, 2).Value)
+             Year1 = Mid(Start_Year, 1, 4)
+             Year2 = Mid(End_Year, 1, 4)
+            
+        
+        
+        End If
+                       
+    Next i
+            
+           
+Next ws
+
+'-------------------------------------------------------------
+    'Calculating 'Total_Stock_Volume
+'------------------------------------------------------------
+
+
+'Dim Ticker_Symbol As String
+'Dim Start_Year As Variant
+'Dim End_Year As Variant
+'Dim Year1 As Variant
+'Dim Year2 As Variant
+'Dim Stock_Volume As Double
+'Dim Total_Stock_Volume As Double
+
+
+ i = 2 'row increment counter
+ j = 2 'row increment counter for adding value to a new column 'Total_Stock_Volume'
+
+For Each ws In Worksheets
+    ws.Activate
+        
+        
+    
+        Ticker_Symbol = Cells(i, 1).Value
+        Stock_Volume = Cells(i, 7).Value
+        Start_Year = (Cells(i, 2).Value)
+        End_Year = (Cells(i + 1, 2).Value)
+        Year1 = Mid(Start_Year, 1, 4)
+        Year2 = Mid(End_Year, 1, 4)
+        Total_Stock_Volume = 0
+        
+    
+        
+    
+    For x = 2 To Last_Row
+    
+        
+    
+        'Comparing the Ticker Cell values with each other
+         'MsgBox (i)
+         'MsgBox (Ticker_Symbol)
+         'MsgBox (Total_Stock_Volume)
+         
+       While (Ticker_Symbol = Cells(i, 1).Value And Year1 = Year2)
+        
+           
+            Total_Stock_Volume = Cells(i, 7).Value + Total_Stock_Volume
+            
+            i = i + 1
+            
+            
+           
+            End_Year = CDbl(Cells(i, 2).Value)
+            Year2 = Mid(End_Year, 1, 4)
+       Wend
+            i = i + 1
+            'MsgBox (i)
+           
+            Ticker_Symbol = (Cells(i, 1).Value)
+            'MsgBox (Ticker_Symbol)
+            'MsgBox (Total_Stock_Volume)
+            
+            Start_Year = Cells(i, 2).Value
+            End_Year = Cells(i + 1, 2).Value
+            Year1 = Mid(Start_Year, 1, 4)
+            Year2 = Mid(End_Year, 1, 4)
+            
+            
+           'Inserting value in a new column 'Total_Stock_Volume'
+        
+           Cells(j, 12).Value = Total_Stock_Volume
+           Total_Stock_Volume = 0
+           
+            j = j + 1
+            
+    Next x
+    
+            
+ Next ws
+           
+    
+
+ 
+
+
+
+  
+'------------------------------------------------------------------------------------
+'Greatest_Percent_Increase', 'Greatest_Percent_Deccrease', and 'Greatest_Total_Volume'
+'------------------------------------------------------------------------------------
+
+Max_Value = 0
+
+For Each ws In Worksheets
+    ws.Activate
+    
+    Value1 = Application.WorksheetFunction.Max(Columns("K"))
+    
+     If Value1 > Max_Value Then
+        Max_Value = Value1
+        
+        MsgBox (Max_Value)
+       
+        
+     End If
+   
+ Next ws
+  
+   
+    
+    
+'----------------------------------------------------------------------------
+    
+    For Each ws In Worksheets
+    ws.Activate
+        For i = 1 To Last_Row
+        
+            If Max_Value = Cells(i, 11).Value Then
+                Ticker1 = Cells(i, 9).Value
+            End If
+            
+        Next i
+        
+    Next ws
+    
+   MsgBox (Ticker1)
+    
+'--------------------------------------------------------------------------------
+'----------------------------------------------------------------------------------
+  Min_Value = 0
+  
+  For Each ws In Worksheets
+    ws.Activate
+    
+    
+   
+    Value = Application.WorksheetFunction.Min(Columns("K"))
+    
+   
+       
+      
+    If Worksheet.Count = 1 Then
+        Min_Value = Value
+        MsgBox (Min_Value)
+    ElseIf Value < Min_Value Then
+        Min_Value = Value
+        MsgBox (Min_Value)
+        
+        
+     End If
+  
+   
+  Next ws
+  
+   
+    
+'----------------------------------------------------------------------------
+    
+    For Each ws In Worksheets
+    ws.Activate
+        For i = 1 To Last_Row
+        
+            If Min_Value = Cells(i, 11).Value Then
+                Ticker2 = Cells(i, 9).Value
+            End If
+            
+        Next i
+        
+    Next ws
+    
+     MsgBox (Ticker2)
+     
+'-------------------------------------------------------------------------------------------
+'------------------------------------------------------------------------------------------
+ 
+ 
+Max_Value = 0
+
+For Each ws In Worksheets
+    ws.Activate
+    
+    Value = Application.WorksheetFunction.Max(Columns("L"))
+   
+     If Value > Max_Value Then
+        Max_Value = Value
+        Greatest_Stock_Volume = Max_Value
+        MsgBox (Max_Value)
+     End If
+   
+ Next ws
+  
+   
+    
+    
+'----------------------------------------------------------------------------
+    
+    For Each ws In Worksheets
+    ws.Activate
+        For i = 1 To Last_Row
+        
+            If Max_Value = Cells(i, 12).Value Then
+                Ticker3 = Cells(i, 9).Value
+            End If
+            
+        Next i
+        
+    Next ws
+    
+    
+    MsgBox (Ticker3)
+    
+    
+'-----------------------------------------------------------------------------------
+'-----------------------------------------------------------------------------------
+Sheets("A").Activate
+
+Cells(1, Last_Column + 9).Value = "Ticker"
+Cells(1, Last_Column + 10).Value = "Value"
+
+Cells(2, Last_Column + 8).Value = "Greatest % Increase"
+Cells(3, Last_Column + 8).Value = "Greatest % Decrease"
+
+Cells(4, Last_Column + 8).Value = "Greatest Total Volume"
+     
+
+Cells(2, 16).Value = Ticker1
+Cells(3, 16).Value = Ticker2
+Cells(4, 16).Value = Ticker3
+
+Cells(2, 17).Value = Max_Value
+Cells(2, 17).NumberFormat = "0.00\%"
+
+Cells(3, 17).Value = Min_Value
+Cells(3, 17).NumberFormat = "0.00\%"
+
+Cells(4, 17).Value = Greatest_Stock_Volume
+ 
+
+
+
+End Sub
+
+
+
